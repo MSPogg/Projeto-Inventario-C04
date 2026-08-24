@@ -1,59 +1,75 @@
+/*
+    Projeto por:
+    Guilherme Carlos da Silva - 2034
+    Murilo Silva Dal Poggetto - 2351
+    Yan de Almeida Gonzaga - 874
+*/
+
 #include "menu.h"
+#include <iostream>
 #include <windows.h>
+
 using namespace std;
 
+// Função temporária
 void construcao() {
-    cout << "Funcionalidade em construção!" << endl << endl;
+    cout << "Funcionalidade em construção!" << endl;
+
+    esperar();
+    limparTela();
 }
+
 int main() {
+    // Comandos para saídas de texto em português
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
-    char opcao;
+    int opcao;
 
     while(true) {
-        menu();
+        topoMenu();
+        exibirMenu();
 
         cin >> opcao;
 
         switch(opcao) {
-        case 'a':
+        case 1:
             construcao();
             break;
         
-        case 'b':
+        case 2:
             construcao();
             break;
             
-        case 'c':
+        case 3:
             construcao();
             break;
         
-        case 'd':
+        case 4:
             construcao();
             break;
         
-        case 'e':
+        case 5:
             construcao();
             break;
         
-        case 'f':
+        case 6:
             construcao();
             break;
         
-        case 'g':
+        case 7:
             construcao();
             break;
         
-        case 'h':
+        case 8:
             construcao();
             break;
 
-        case 'i':
+        case 9:
             return 0;
 
         default:
-            cout << "Opcao invalida!" << endl;
+            cout << "Opção inválida!" << endl;
             break;
         }
     }
