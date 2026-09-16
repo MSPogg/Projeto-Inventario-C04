@@ -1,1 +1,0 @@
-// Arquivo para criar as funcionalidades do menu (funções do 1 ao 8)

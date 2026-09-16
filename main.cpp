@@ -6,8 +6,10 @@
 */
 
 #include "menu.h"
+#include "inventario.h"
 #include <iostream>
 #include <windows.h>
+#include <list>
 
 using namespace std;
 
@@ -24,6 +26,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
+    list<Item> inventario_provisorio;
     int opcao;
 
     while(true) {
@@ -33,9 +36,23 @@ int main() {
         cin >> opcao;
 
         switch(opcao) {
-        case 1:
-            construcao();
+        // Funcao Inserir Item
+        case 1: {
+            Item novo_item;
+            int valor;
+
+            cin >> novo_item.nome_item;
+            cin >> novo_item.nome_dono;
+            cin >> novo_item.propriedade_magica;
+            cin >> novo_item.id;
+            cin >> valor;
+            novo_item.raridade = classificarRaridade(valor);
+
+
+            inserirItem(inventario_provisorio, novo_item);
+
             break;
+        }
         
         case 2:
             construcao();
