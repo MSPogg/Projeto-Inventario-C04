@@ -1,6 +1,11 @@
 #ifndef INVENTARIO_H
 #define INVENTARIO_H
 
+#include <string>
+#include <list>
+
+using namespace std;
+
 enum Raridade {
     Comum,
     Raro,
@@ -22,9 +27,13 @@ struct Aresta{
     int similaridade;
 };
 
+struct Vertice{
+    Item item;
+    list<Aresta> adjacentes;
+};
+
 struct Grafo{
-    map<int, Item> vertices;
-    map<int, list<Aresta>> adjacencia;
+    list<Vertice> vertices;
 };
 
 Raridade classificarRaridade(int valor);
@@ -34,5 +43,7 @@ bool existeItem(const Grafo &inventario, int id);
 bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade);
 void exibirSimilaridadesBFS(const Grafo &inventario);
 void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jogador, int similaridade);
+
+int lerInteiro(const string &mensagem);
 
 #endif

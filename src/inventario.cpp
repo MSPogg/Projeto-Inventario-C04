@@ -3,8 +3,7 @@
 #include <string>
 #include <iostream>
 #include <list>
-#include <queue>
-#include <set>
+#include <stdexcept>
 
 using namespace std;
 
@@ -34,95 +33,142 @@ void inserirItem(list<Item> &inventario_provisorio, Item novo_item) {
 
 // Funcao 2 - Cadastrar similaridade (grafo ponderado com lista de adjacência)
 
-bool existeItem(const Grafo &inventario, int id){
-    return inventario.vertices.count(id) > 0;
+static bool contem(const list<int> &lista, int valor){
+    for(int elemento : lista){
+        if(elemento == valor){
+            return true;
+        }
+    }
+    return false;
 }
 
-// Insere o item como vértice do grafo
+static Vertice *buscarVertice(Grafo &inventario, int id){
+    for(Vertice &vertice : inventario.vertices){
+        if(vertice.item.id == id){
+            return &vertice;
+        }
+    }
+    return nullptr;
+}
+
+static const Vertice *buscarVertice(const Grafo &inventario, int id){
+    for(const Vertice &vertice : inventario.vertices){
+        if(vertice.item.id == id){
+            return &vertice;
+        }
+    }
+    return nullptr;
+}
+
+bool existeItem(const Grafo &inventario, int id){
+    return buscarVertice(inventario, id) != nullptr;
+}
+
+// Insere o item como vértice do grafo, mantendo os vértices ordenados por id
 bool inserirVertice(Grafo &inventario, Item item){
-    if(existeItem(inventario, item.id)){
-        return false;
+    for(auto it = inventario.vertices.begin(); it != inventario.vertices.end(); it++){
+        if(it->item.id == item.id){
+            return false;
+        }
+        if(it->item.id > item.id){
+            inventario.vertices.insert(it, {item, {}});
+            return true;
+        }
     }
 
-    inventario.vertices[item.id] = item;
-    inventario.adjacencia[item.id];
+    inventario.vertices.push_back({item, {}});
     return true;
 }
 
-static void adicionarAresta(Grafo &inventario, int origem, int destino, int similaridade){
-    for(Aresta &aresta : inventario.adjacencia[origem]){
+static void adicionarAresta(Vertice &origem, int destino, int similaridade){
+    for(Aresta &aresta : origem.adjacentes){
         if(aresta.destino == destino){
             aresta.similaridade = similaridade;
             return;
         }
     }
 
-    inventario.adjacencia[origem].push_back({destino, similaridade});
+    origem.adjacentes.push_back({destino, similaridade});
 }
 
 // Grafo não direcionado: aresta nos dois sentidos
 bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade){
-    if(id1 == id2 || !existeItem(inventario, id1) || !existeItem(inventario, id2)){
+    if(id1 == id2){
         return false;
     }
 
-    adicionarAresta(inventario, id1, id2, similaridade);
-    adicionarAresta(inventario, id2, id1, similaridade);
+    Vertice *v1 = buscarVertice(inventario, id1);
+    Vertice *v2 = buscarVertice(inventario, id2);
+
+    if(v1 == nullptr || v2 == nullptr){
+        return false;
+    }
+
+    adicionarAresta(*v1, id2, similaridade);
+    adicionarAresta(*v2, id1, similaridade);
     return true;
 }
 
-// BFS seguindo o código da aula
-static void buscaEmLargura(const Grafo &inventario, int s, set<int> &marcados){
-    queue<int> F;
-    set<int> emF;
+static void imprimirAresta(const Vertice &v, const Vertice &w, int similaridade){
+    cout << v.item.nome_item << " (" << v.item.id << ") -- " << w.item.nome_item << " (" << w.item.id << ") | S = " << similaridade << endl;
+}
 
-    marcados.insert(s);
-    F.push(s);
-    emF.insert(s);
+// BFS seguindo o código da aula, usando list como fila
+static void buscaEmLargura(const Grafo &inventario, int s, list<int> &marcados){
+    list<int> F;
+    list<int> emF;
+
+    marcados.push_back(s);
+    F.push_back(s);
+    emF.push_back(s);
 
     while(!F.empty()){
         int v = F.front();
+        const Vertice *vertice_v = buscarVertice(inventario, v);
 
-        for(const Aresta &aresta : inventario.adjacencia.at(v)){
+        for(const Aresta &aresta : vertice_v->adjacentes){
             int w = aresta.destino;
+            const Vertice *vertice_w = buscarVertice(inventario, w);
 
-            if(!marcados.count(w)){
-                cout << inventario.vertices.at(v).nome_item << " (" << v << ") -- " << inventario.vertices.at(w).nome_item << " (" << w << ") | S = " << aresta.similaridade << endl;
-                marcados.insert(w);
-                F.push(w);
-                emF.insert(w);
+            if(!contem(marcados, w)){
+                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
+                marcados.push_back(w);
+                F.push_back(w);
+                emF.push_back(w);
             }
-            else if(emF.count(w)){
-                cout << inventario.vertices.at(v).nome_item << " (" << v << ") -- " << inventario.vertices.at(w).nome_item << " (" << w << ") | S = " << aresta.similaridade << endl;
+            else if(contem(emF, w)){
+                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
             }
         }
 
-        F.pop();
-        emF.erase(v);
+        F.pop_front();
+        emF.remove(v);
     }
 }
 
 // Percorre todos os componentes do grafo com BFS
 void exibirSimilaridadesBFS(const Grafo &inventario){
-    set<int> marcados;
+    list<int> marcados;
 
-    for(const auto &par : inventario.vertices){
-        if(!marcados.count(par.first)){
-            buscaEmLargura(inventario, par.first, marcados);
+    for(const Vertice &vertice : inventario.vertices){
+        if(!contem(marcados, vertice.item.id)){
+            buscaEmLargura(inventario, vertice.item.id, marcados);
         }
     }
 }
 
 void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jogador, int similaridade){
-    if(!existeItem(inventario, codigo)){
+    const Vertice *origem = buscarVertice(inventario, codigo);
+
+    if(origem == nullptr){
         cout << "Item nao encontrado." << endl;
         return;
     }
     
     bool encontrou = false;
 
-    for(const Aresta &aresta : inventario.adjacencia.at(codigo)){
-        const Item &item = inventario.vertices.at(aresta.destino);
+    for(const Aresta &aresta : origem->adjacentes){
+        const Item &item = buscarVertice(inventario, aresta.destino)->item;
         if(aresta.similaridade > similaridade && item.nome_dono != jogador){
             cout << "Item: " << item.nome_item << endl;
             cout << "Dono: " << item.nome_dono << endl;
@@ -134,5 +180,26 @@ void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jog
     }
     if(!encontrou){
         cout << "Nenhum item encontrado." << endl;
+    }
+}
+
+int lerInteiro(const string &mensagem){
+    int valor;
+
+    while(true){
+        cout << mensagem;
+
+        try{
+            if(!(cin >> valor)){
+                throw invalid_argument("Entrada inválida");
+            }
+
+            return valor;
+        }
+        catch(const invalid_argument &erro){
+            cout << erro.what() << ": digite um número inteiro." << endl;
+            cin.clear();
+            cin.ignore(10000, '\n');
+        }
     }
 }

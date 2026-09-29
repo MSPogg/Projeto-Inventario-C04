@@ -34,7 +34,7 @@ int main() {
         topoMenu();
         exibirMenu();
 
-        cin >> opcao;
+        opcao = lerInteiro("Opção: ");
 
         switch(opcao) {
         // Funcao Inserir Item
@@ -42,27 +42,34 @@ int main() {
             Item novo_item;
             int valor;
 
+            cout << "Nome do item: ";
             cin >> novo_item.nome_item;
+            cout << "Nome do dono: ";
             cin >> novo_item.nome_dono;
+            cout << "Propriedade mágica: ";
             cin >> novo_item.propriedade_magica;
-            cin >> novo_item.id;
-            cin >> valor;
+            novo_item.id = lerInteiro("ID: ");
+            valor = lerInteiro("Valor de raridade: ");
             novo_item.raridade = classificarRaridade(valor);
 
+            if(!inserirVertice(inventario, novo_item)){
+                cout << "Já existe um item com o ID " << novo_item.id << "." << endl;
+                esperar();
+                break;
+            }
 
             inserirItem(inventario_provisorio, novo_item);
-            inserirVertice(inventario, novo_item);
 
             break;
         }
 
         case 2: {
-            int quantidade;
-            cin >> quantidade;
+            int quantidade = lerInteiro("Quantidade de pares: ");
 
             for(int i = 0; i < quantidade; i++){
-                int id1, id2, similaridade;
-                cin >> id1 >> id2 >> similaridade;
+                int id1 = lerInteiro("ID do primeiro item: ");
+                int id2 = lerInteiro("ID do segundo item: ");
+                int similaridade = lerInteiro("Similaridade: ");
 
                 if(!inserirSimilaridade(inventario, id1, id2, similaridade)){
                     cout << "Par inválido: " << id1 << " " << id2 << endl;
@@ -75,16 +82,14 @@ int main() {
         }
             
         case 3: {
-         int codigo;
-         int similaridade;
-         string jogador;
+            string jogador;
+            cout << "Nome do jogador: ";
+            cin >> jogador;
+            int similaridade = lerInteiro("Similaridade mínima: ");
+            int codigo = lerInteiro("ID do item: ");
 
-         cin >> jogador;
-         cin >> similaridade;
-         cin >> codigo;
-
-         buscarItensSimilares(inventario, codigo, jogador, similaridade);
-         esperar();
+            buscarItensSimilares(inventario, codigo, jogador, similaridade);
+            esperar();
             break;
         }
             
