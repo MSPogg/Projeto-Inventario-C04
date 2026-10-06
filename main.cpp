@@ -10,6 +10,7 @@
 #include <iostream>
 #include <windows.h>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -43,11 +44,14 @@ int main() {
             int valor;
 
             cout << "Nome do item: ";
-            cin >> novo_item.nome_item;
+            getline(cin, novo_item.nome_item);
+            
             cout << "Nome do dono: ";
-            cin >> novo_item.nome_dono;
+            getline(cin, novo_item.nome_dono);
+            
             cout << "Propriedade mágica: ";
-            cin >> novo_item.propriedade_magica;
+            getline(cin, novo_item.propriedade_magica);
+            
             novo_item.id = lerInteiro("ID: ");
             valor = lerInteiro("Valor de raridade: ");
             novo_item.raridade = classificarRaridade(valor);
@@ -84,7 +88,8 @@ int main() {
         case 3: {
             string jogador;
             cout << "Nome do jogador: ";
-            cin >> jogador;
+            getline(cin, jogador);
+            
             int similaridade = lerInteiro("Similaridade mínima: ");
             int codigo = lerInteiro("ID do item: ");
 

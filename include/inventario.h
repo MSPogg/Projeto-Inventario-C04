@@ -4,8 +4,6 @@
 #include <string>
 #include <list>
 
-using namespace std;
-
 enum Raridade {
     Comum,
     Raro,
@@ -15,9 +13,9 @@ enum Raridade {
 };
 
 struct Item {
-    string nome_item;
-    string nome_dono;
-    string propriedade_magica;
+    std::string nome_item;
+    std::string nome_dono;
+    std::string propriedade_magica;
     int id;
     Raridade raridade;
 };
@@ -29,21 +27,21 @@ struct Aresta{
 
 struct Vertice{
     Item item;
-    list<Aresta> adjacentes;
+    std::list<Aresta> adjacentes;
 };
 
 struct Grafo{
-    list<Vertice> vertices;
+    std::list<Vertice> vertices;
 };
 
 Raridade classificarRaridade(int valor);
-void inserirItem(list<Item> &inventario_provisorio, Item novo_item);
+void inserirItem(std::list<Item> &inventario_provisorio, Item novo_item);
 bool inserirVertice(Grafo &inventario, Item item);
 bool existeItem(const Grafo &inventario, int id);
 bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade);
 void exibirSimilaridadesBFS(const Grafo &inventario);
-void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jogador, int similaridade);
+void buscarItensSimilares(const Grafo &inventario, int codigo, const std::string &jogador, int similaridade);
 
-int lerInteiro(const string &mensagem);
+int lerInteiro(const std::string &mensagem);
 
 #endif

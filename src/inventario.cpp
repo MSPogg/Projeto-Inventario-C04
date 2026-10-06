@@ -194,6 +194,9 @@ int lerInteiro(const string &mensagem){
                 throw invalid_argument("Entrada inválida");
             }
 
+            // Descarta o \n apos leitura
+            cin.ignore(10000, '\n');
+
             return valor;
         }
         catch(const invalid_argument &erro){
