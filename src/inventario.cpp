@@ -189,8 +189,8 @@ int lerInteiro(const string &mensagem){
     while(true){
         cout << mensagem;
 
-        try{
-            if(!(cin >> valor)){
+        try {
+            if(!(cin >> valor)) {
                 throw invalid_argument("Entrada inválida");
             }
 
@@ -199,10 +199,27 @@ int lerInteiro(const string &mensagem){
 
             return valor;
         }
-        catch(const invalid_argument &erro){
+        catch(const invalid_argument &erro) {
             cout << erro.what() << ": digite um número inteiro." << endl;
             cin.clear();
             cin.ignore(10000, '\n');
         }
+    }
+}
+
+// Arvore binaria
+
+void tInsert(treenode* &p, Item novo_item) {
+    if(p == nullptr) {
+        p = new treenode;
+        p->item = novo_item;
+        p->left = nullptr;
+        p->right = nullptr;
+    }
+    else if(novo_item.nome_item < p->item.nome_item) {
+        tInsert(p->left, novo_item);
+    }
+    else {
+        tInsert(p->right, novo_item);
     }
 }

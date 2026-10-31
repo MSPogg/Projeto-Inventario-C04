@@ -28,6 +28,7 @@ int main() {
     SetConsoleCP(CP_UTF8);
 
     list<Item> inventario_provisorio;
+    treenode* arvore_inventario = nullptr;
     Grafo inventario;
     int opcao;
 
@@ -62,7 +63,7 @@ int main() {
                 break;
             }
 
-            inserirItem(inventario_provisorio, novo_item);
+            tInsert(arvore_inventario, novo_item);
 
             break;
         }
