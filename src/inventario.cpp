@@ -1,5 +1,6 @@
 // Arquivo para criar as funcionalidades do menu (funções do 1 ao 8)
 #include "inventario.h"
+#include "menu.h"
 #include <string>
 #include <iostream>
 #include <list>
@@ -221,5 +222,40 @@ void tInsert(treenode* &p, Item novo_item) {
     }
     else {
         tInsert(p->right, novo_item);
+    }
+}
+
+string nomeRaridade(Raridade raridade){
+    switch(raridade){
+        case Comum: return "Comum";
+        case Raro: return "Raro";
+        case Epico: return "Épico";
+        case Lendario: return "Lendário";
+        case Mitico: return "Mítico";
+    }
+    return "";
+}
+
+string corRaridade(Raridade raridade){
+    switch(raridade){
+        case Comum: return VERDE;
+        case Raro: return AZUL;
+        case Epico: return ROXO;
+        case Lendario: return AMARELO;
+        case Mitico: return VERMELHO;
+    }
+    return RESET;
+}
+
+void tShowInOrder(treenode* p){
+    if(p != nullptr){
+        tShowInOrder(p->left);
+        cout << AMARELO << "┌─ " << RESET << NEGRITO << p->item.nome_item << RESET << endl;
+        cout << AMARELO << "│ " << RESET << "Dono: " << p->item.nome_dono << endl;
+        cout << AMARELO << "│ " << RESET << "Propriedade mágica: " << p->item.propriedade_magica << endl;
+        cout << AMARELO << "│ " << RESET << "ID: " << p->item.id << endl;
+        cout << AMARELO << "│ " << RESET << "Raridade: " << corRaridade(p->item.raridade) << nomeRaridade(p->item.raridade) << RESET << endl;
+        cout << AMARELO << "└────────────────────────────────" << RESET << endl;
+        tShowInOrder(p->right);
     }
 }

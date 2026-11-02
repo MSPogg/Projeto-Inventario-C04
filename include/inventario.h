@@ -51,5 +51,8 @@ void exibirSimilaridadesBFS(const Grafo &inventario);
 void buscarItensSimilares(const Grafo &inventario, int codigo, const std::string &jogador, int similaridade);
 int lerInteiro(const std::string &mensagem);
 void tInsert(treenode* &p, Item novo_item);
+std::string nomeRaridade(Raridade raridade);
+std::string corRaridade(Raridade raridade);
+void tShowInOrder(treenode* p);
 
 #endif

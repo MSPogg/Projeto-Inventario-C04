@@ -33,10 +33,11 @@ int main() {
     int opcao;
 
     while(true) {
+        limparTela();
         topoMenu();
         exibirMenu();
 
-        opcao = lerInteiro("Opção: ");
+        opcao = lerInteiro(AMARELO + "» " + RESET + "Opção: ");
 
         switch(opcao) {
         // Funcao Inserir Item
@@ -104,7 +105,13 @@ int main() {
             break;
 
         case 5:
-            construcao();
+            if(arvore_inventario == nullptr){
+                cout << "Inventário vazio!" << endl;
+            }
+            else {
+                tShowInOrder(arvore_inventario);
+            }
+            esperar();
             break;
 
         case 6:
@@ -124,6 +131,7 @@ int main() {
 
         default:
             cout << "Opção inválida!" << endl;
+            esperar();
             break;
         }
     }
