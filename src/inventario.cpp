@@ -32,6 +32,17 @@ void inserirItem(list<Item> &inventario_provisorio, Item novo_item) {
     inventario_provisorio.push_back(novo_item);
 }
 
+// Funcao 7 - Verificar existencia de item pelo nome
+bool existeItemPorNome(const list<Item> &inventario_provisorio, const string &nome) {
+    for(const Item &item : inventario_provisorio) {
+        if(item.nome_item == nome) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Funcao 2 - Cadastrar similaridade (grafo ponderado com lista de adjacência)
 
 static bool contem(const list<int> &lista, int valor){
