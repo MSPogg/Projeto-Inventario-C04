@@ -52,6 +52,7 @@ bool existeItem(const Grafo &inventario, int id);
 bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade);
 void exibirSimilaridadesBFS(const Grafo &inventario);
 void buscarItensSimilares(const Grafo &inventario, int codigo, const std::string &jogador, int similaridade);
+bool existeItemPorNome(const list<Item> &inventario_provisorio, const string &nome);
 int lerInteiro(const std::string &mensagem);
 void tInsert(treenode* &p, Item novo_item);
 std::string nomeRaridade(Raridade raridade);
