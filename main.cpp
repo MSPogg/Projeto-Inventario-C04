@@ -100,10 +100,26 @@ int main() {
             break;
         }
             
-        case 4:
-            construcao();
-            break;
+    
+        case 4: {
 
+            string nome;
+
+            cout << "Digite o nome do item: ";
+            cin >> nome;
+
+            if(existeItemPorNome(inventario_provisorio, nome)) {
+            cout << "Item encontrado!" << endl;
+        }
+            else {
+            cout << "Item não encontrado!" << endl;
+        }
+
+            esperar();
+
+            break;
+        }
+            
         case 5:
             if(arvore_inventario == nullptr){
                 cout << "Inventário vazio!" << endl;
