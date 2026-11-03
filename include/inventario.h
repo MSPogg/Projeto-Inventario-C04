@@ -4,6 +4,9 @@
 #include <string>
 #include <list>
 
+#include <map>
+
+
 enum Raridade {
     Comum,
     Raro,
