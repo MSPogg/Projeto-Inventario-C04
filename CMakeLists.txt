@@ -6,6 +6,7 @@ add_executable(Projeto-Inventario-C04
     main.cpp
     src/inventario.cpp 
     src/menu.cpp
+    src/arvore_raridade.cpp
 )
 
 target_include_directories(Projeto-Inventario-C04 PRIVATE include)
