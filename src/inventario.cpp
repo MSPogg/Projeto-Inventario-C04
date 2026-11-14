@@ -270,3 +270,87 @@ void tShowInOrder(treenode* p){
         tShowInOrder(p->right);
     }
 }
+
+int contarPropriedade(treenode* p, const string &propriedade){
+    if(p == nullptr){
+        return 0;
+    }
+
+    int quantidade = 0;
+
+    if(p->item.propriedade_magica == propriedade){
+        quantidade = 1;
+    }
+
+    return quantidade + contarPropriedade(p->left, propriedade) + contarPropriedade(p->right, propriedade);
+}
+
+static treenode* tFindLessSaveRight(treenode* &p){
+    if(p->left != nullptr){
+        return tFindLessSaveRight(p->left);
+    }
+
+    treenode* copia = p;
+    p = p->right;
+    return copia;
+}
+
+bool tRemove(treenode* &p, const string &nome, int id){
+    if(p == nullptr){
+        return false;
+    }
+
+    if(nome == p->item.nome_item && id == p->item.id){
+        treenode* temp = p;
+
+        if(p->right == nullptr){
+            p = p->left;
+        }
+        else if(p->left == nullptr){
+            p = p->right;
+        }
+        else {
+            temp = tFindLessSaveRight(p->right);
+            p->item = temp->item;
+        }
+
+        delete temp;
+        return true;
+    }
+
+    if(nome < p->item.nome_item){
+        return tRemove(p->left, nome, id);
+    }
+
+    return tRemove(p->right, nome, id);
+}
+
+void removerVertice(Grafo &inventario, int id){
+    for(Vertice &vertice : inventario.vertices){
+        vertice.adjacentes.remove_if([id](const Aresta &aresta){
+            return aresta.destino == id;
+        });
+    }
+
+    inventario.vertices.remove_if([id](const Vertice &vertice){
+        return vertice.item.id == id;
+    });
+}
+
+int removerMenosRaros(Grafo &inventario, treenode* &arvore, int r){
+    list<Item> remover;
+
+    for(const Vertice &vertice : inventario.vertices){
+        if(vertice.item.valor_raridade < r){
+            remover.push_back(vertice.item);
+        }
+    }
+
+    for(const Item &item : remover){
+        tRemove(arvore, item.nome_item, item.id);
+        removerVertice(inventario, item.id);
+        cout << "Removido: " << item.nome_item << " (ID " << item.id << ")" << endl;
+    }
+
+    return remover.size();
+}

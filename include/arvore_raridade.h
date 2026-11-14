@@ -1,4 +1,4 @@
-ifndef ARVORE_RARIDADE_H
+#ifndef ARVORE_RARIDADE_H
 #define ARVORE_RARIDADE_H
 
 #include "inventario.h"

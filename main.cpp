@@ -57,6 +57,7 @@ int main() {
             
             novo_item.id = lerInteiro("ID: ");
             valor = lerInteiro("Valor de raridade: ");
+            novo_item.valor_raridade = valor;
             novo_item.raridade = classificarRaridade(valor);
 
             if(!inserirVertice(inventario, novo_item)){
@@ -136,13 +137,25 @@ int main() {
             esperar();
             break;
 
-        case 7:
-            construcao();
-            break;
+        case 7: {
+            string propriedade;
+            cout << "Propriedade mágica: ";
+            getline(cin, propriedade);
 
-        case 8:
-            construcao();
+            int quantidade = contarPropriedade(arvore_inventario, propriedade);
+            cout << "Itens com a propriedade \"" << propriedade << "\": " << quantidade << endl;
+            esperar();
             break;
+        }
+
+        case 8: {
+            int r = lerInteiro("Remover itens com raridade menor que R = ");
+            int removidos = removerMenosRaros(inventario, arvore_inventario, r);
+
+            cout << "Total de itens removidos: " << removidos << endl;
+            esperar();
+            break;
+        }
 
         case 9:
             return 0;
