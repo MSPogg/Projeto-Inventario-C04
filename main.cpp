@@ -7,6 +7,7 @@
 
 #include "menu.h"
 #include "inventario.h"
+#include "arvore_raridade.h"
 #include <iostream>
 #include <windows.h>
 #include <list>
@@ -131,7 +132,8 @@ int main() {
             break;
 
         case 6:
-            construcao();
+            imprimirPorRaridade(inventario);
+            esperar();
             break;
 
         case 7:
