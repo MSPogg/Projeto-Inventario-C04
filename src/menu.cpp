@@ -13,18 +13,18 @@ void esperar() {
     system("pause");
 }
 
-void topoMenu(){
+void topoMenu() {
     cout << AMARELO << "╔══════════════════════════════════════════╗" << RESET << endl;
     cout << AMARELO << "║" << NEGRITO << "        ⚔  INVENTÁRIO DO HERÓI  ⚔         " << RESET << AMARELO << "║" << RESET << endl;
     cout << AMARELO << "╚══════════════════════════════════════════╝" << RESET << endl;
     cout << CINZA << "      ~ que a sorte guie seus saques ~" << RESET << endl << endl;
 }
 
-static void mostrarOpcao(int numero, const string &texto){
+static void mostrarOpcao(int numero, const string &texto) {
     cout << "  " << CIANO << "[" << numero << "]" << RESET << " " << texto << endl;
 }
 
-void exibirMenu(){
+void exibirMenu() {
     cout << AMARELO << "  ── O Baú ───────────────────────────────" << RESET << endl;
     mostrarOpcao(1, "Inserir item");
     mostrarOpcao(2, "Cadastrar similaridade entre itens");

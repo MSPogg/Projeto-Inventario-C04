@@ -4,240 +4,28 @@
 #include <string>
 #include <iostream>
 #include <list>
-#include <stdexcept>
 
 using namespace std;
 
 Raridade classificarRaridade(int valor) {
-    if(valor >= 100) {
+    if (valor >= 100) {
         return Raridade::Mitico;
     }
-    if(valor >= 85) {
+    if (valor >= 85) {
         return Raridade::Lendario;
     }
-    if(valor >= 60) {
+    if (valor >= 60) {
         return Raridade::Epico;
     }
-    if(valor >= 30) {
+    if (valor >= 30) {
         return Raridade::Raro;
     }
-    
+
     return Raridade::Comum;
 }
 
-// Funcao 1 - Inserir Item
-// Criado usando apenas uma lista pois o grafo será implementado na EP3
-
-void inserirItem(list<Item> &inventario_provisorio, Item novo_item) {
-    inventario_provisorio.push_back(novo_item);
-}
-
-// Funcao 7 - Verificar existencia de item pelo nome
-bool existeItemPorNome(const list<Item> &inventario_provisorio, const string &nome) {
-    for(const Item &item : inventario_provisorio) {
-        if(item.nome_item == nome) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// Funcao 2 - Cadastrar similaridade (grafo ponderado com lista de adjacência)
-
-static bool contem(const list<int> &lista, int valor){
-    for(int elemento : lista){
-        if(elemento == valor){
-            return true;
-        }
-    }
-    return false;
-}
-
-static Vertice *buscarVertice(Grafo &inventario, int id){
-    for(Vertice &vertice : inventario.vertices){
-        if(vertice.item.id == id){
-            return &vertice;
-        }
-    }
-    return nullptr;
-}
-
-static const Vertice *buscarVertice(const Grafo &inventario, int id){
-    for(const Vertice &vertice : inventario.vertices){
-        if(vertice.item.id == id){
-            return &vertice;
-        }
-    }
-    return nullptr;
-}
-
-bool existeItem(const Grafo &inventario, int id){
-    return buscarVertice(inventario, id) != nullptr;
-}
-
-// Insere o item como vértice do grafo, mantendo os vértices ordenados por id
-bool inserirVertice(Grafo &inventario, Item item){
-    for(auto it = inventario.vertices.begin(); it != inventario.vertices.end(); it++){
-        if(it->item.id == item.id){
-            return false;
-        }
-        if(it->item.id > item.id){
-            inventario.vertices.insert(it, {item, {}});
-            return true;
-        }
-    }
-
-    inventario.vertices.push_back({item, {}});
-    return true;
-}
-
-static void adicionarAresta(Vertice &origem, int destino, int similaridade){
-    for(Aresta &aresta : origem.adjacentes){
-        if(aresta.destino == destino){
-            aresta.similaridade = similaridade;
-            return;
-        }
-    }
-
-    origem.adjacentes.push_back({destino, similaridade});
-}
-
-// Grafo não direcionado: aresta nos dois sentidos
-bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade){
-    if(id1 == id2){
-        return false;
-    }
-
-    Vertice *v1 = buscarVertice(inventario, id1);
-    Vertice *v2 = buscarVertice(inventario, id2);
-
-    if(v1 == nullptr || v2 == nullptr){
-        return false;
-    }
-
-    adicionarAresta(*v1, id2, similaridade);
-    adicionarAresta(*v2, id1, similaridade);
-    return true;
-}
-
-static void imprimirAresta(const Vertice &v, const Vertice &w, int similaridade){
-    cout << v.item.nome_item << " (" << v.item.id << ") -- " << w.item.nome_item << " (" << w.item.id << ") | S = " << similaridade << endl;
-}
-
-// BFS seguindo o código da aula, usando list como fila
-static void buscaEmLargura(const Grafo &inventario, int s, list<int> &marcados){
-    list<int> F;
-    list<int> emF;
-
-    marcados.push_back(s);
-    F.push_back(s);
-    emF.push_back(s);
-
-    while(!F.empty()){
-        int v = F.front();
-        const Vertice *vertice_v = buscarVertice(inventario, v);
-
-        for(const Aresta &aresta : vertice_v->adjacentes){
-            int w = aresta.destino;
-            const Vertice *vertice_w = buscarVertice(inventario, w);
-
-            if(!contem(marcados, w)){
-                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
-                marcados.push_back(w);
-                F.push_back(w);
-                emF.push_back(w);
-            }
-            else if(contem(emF, w)){
-                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
-            }
-        }
-
-        F.pop_front();
-        emF.remove(v);
-    }
-}
-
-// Percorre todos os componentes do grafo com BFS
-void exibirSimilaridadesBFS(const Grafo &inventario){
-    list<int> marcados;
-
-    for(const Vertice &vertice : inventario.vertices){
-        if(!contem(marcados, vertice.item.id)){
-            buscaEmLargura(inventario, vertice.item.id, marcados);
-        }
-    }
-}
-
-void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jogador, int similaridade){
-    const Vertice *origem = buscarVertice(inventario, codigo);
-
-    if(origem == nullptr){
-        cout << "Item nao encontrado." << endl;
-        return;
-    }
-    
-    bool encontrou = false;
-
-    for(const Aresta &aresta : origem->adjacentes){
-        const Item &item = buscarVertice(inventario, aresta.destino)->item;
-        if(aresta.similaridade > similaridade && item.nome_dono != jogador){
-            cout << "Item: " << item.nome_item << endl;
-            cout << "Dono: " << item.nome_dono << endl;
-            cout << "ID: " << item.id << endl;
-            cout << "Similaridade: " << aresta.similaridade << endl;
-            cout << endl;
-            encontrou = true;
-        }
-    }
-    if(!encontrou){
-        cout << "Nenhum item encontrado." << endl;
-    }
-}
-
-int lerInteiro(const string &mensagem){
-    int valor;
-
-    while(true){
-        cout << mensagem;
-
-        try {
-            if(!(cin >> valor)) {
-                throw invalid_argument("Entrada inválida");
-            }
-
-            // Descarta o \n apos leitura
-            cin.ignore(10000, '\n');
-
-            return valor;
-        }
-        catch(const invalid_argument &erro) {
-            cout << erro.what() << ": digite um número inteiro." << endl;
-            cin.clear();
-            cin.ignore(10000, '\n');
-        }
-    }
-}
-
-// Arvore binaria
-
-void tInsert(treenode* &p, Item novo_item) {
-    if(p == nullptr) {
-        p = new treenode;
-        p->item = novo_item;
-        p->left = nullptr;
-        p->right = nullptr;
-    }
-    else if(novo_item.nome_item < p->item.nome_item) {
-        tInsert(p->left, novo_item);
-    }
-    else {
-        tInsert(p->right, novo_item);
-    }
-}
-
-string nomeRaridade(Raridade raridade){
-    switch(raridade){
+string nomeRaridade(Raridade raridade) {
+    switch (raridade) {
         case Comum: return "Comum";
         case Raro: return "Raro";
         case Epico: return "Épico";
@@ -247,8 +35,8 @@ string nomeRaridade(Raridade raridade){
     return "";
 }
 
-string corRaridade(Raridade raridade){
-    switch(raridade){
+string corRaridade(Raridade raridade) {
+    switch (raridade) {
         case Comum: return VERDE;
         case Raro: return AZUL;
         case Epico: return ROXO;
@@ -258,59 +46,287 @@ string corRaridade(Raridade raridade){
     return RESET;
 }
 
-void tShowInOrder(treenode* p){
-    if(p != nullptr){
-        tShowInOrder(p->left);
-        cout << AMARELO << "┌─ " << RESET << NEGRITO << p->item.nome_item << RESET << endl;
-        cout << AMARELO << "│ " << RESET << "Dono: " << p->item.nome_dono << endl;
-        cout << AMARELO << "│ " << RESET << "Propriedade mágica: " << p->item.propriedade_magica << endl;
-        cout << AMARELO << "│ " << RESET << "ID: " << p->item.id << endl;
-        cout << AMARELO << "│ " << RESET << "Raridade: " << corRaridade(p->item.raridade) << nomeRaridade(p->item.raridade) << RESET << endl;
-        cout << AMARELO << "└────────────────────────────────" << RESET << endl;
-        tShowInOrder(p->right);
+void exibirItem(const Item &item) {
+    cout << AMARELO << "┌─ " << RESET << NEGRITO << item.nome_item << RESET << endl;
+    cout << AMARELO << "│ " << RESET << "Dono: " << item.nome_dono << endl;
+    cout << AMARELO << "│ " << RESET << "Propriedade mágica: " << item.propriedade_magica << endl;
+    cout << AMARELO << "│ " << RESET << "ID: " << item.id << endl;
+    cout << AMARELO << "│ " << RESET << "Raridade: " << item.valor_raridade << " (" << corRaridade(item.raridade) << nomeRaridade(item.raridade) << RESET << ")" << endl;
+    cout << AMARELO << "└────────────────────────────────" << RESET << endl;
+}
+
+int lerInteiro(const string &mensagem) {
+    int valor;
+
+    while (true) {
+        cout << mensagem;
+
+        if (cin >> valor) {
+            // Descarta o \n após leitura
+            cin.ignore(10000, '\n');
+            return valor;
+        }
+
+        cout << "Entrada inválida: digite um número inteiro." << endl;
+        cin.clear();
+        cin.ignore(10000, '\n');
     }
 }
 
-int contarPropriedade(treenode* p, const string &propriedade){
-    if(p == nullptr){
+// Funções de Grafo (inserção de vértices e similaridade com lista de adjacência)
+
+static bool contem(const list<int> &lista, int valor) {
+    for (int elemento : lista) {
+        if (elemento == valor) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static Vertice *buscarVertice(Grafo &inventario, int id) {
+    for (Vertice &vertice : inventario.vertices) {
+        if (vertice.item.id == id) {
+            return &vertice;
+        }
+    }
+    return nullptr;
+}
+
+static const Vertice *buscarVertice(const Grafo &inventario, int id) {
+    for (const Vertice &vertice : inventario.vertices) {
+        if (vertice.item.id == id) {
+            return &vertice;
+        }
+    }
+    return nullptr;
+}
+
+bool existeItem(const Grafo &inventario, int id) {
+    return buscarVertice(inventario, id) != nullptr;
+}
+
+// Insere o item como vértice do grafo, mantendo os vértices ordenados por id
+bool inserirVertice(Grafo &inventario, Item item) {
+    for (auto it = inventario.vertices.begin(); it != inventario.vertices.end(); it++) {
+        if (it->item.id == item.id) {
+            return false;
+        }
+        if (it->item.id > item.id) {
+            inventario.vertices.insert(it, {item, {}});
+            return true;
+        }
+    }
+
+    inventario.vertices.push_back({item, {}});
+    return true;
+}
+
+static void adicionarAresta(Vertice &origem, int destino, int similaridade) {
+    for (Aresta &aresta : origem.adjacentes) {
+        if (aresta.destino == destino) {
+            aresta.similaridade = similaridade;
+            return;
+        }
+    }
+
+    origem.adjacentes.push_back({destino, similaridade});
+}
+
+// Grafo não direcionado: aresta nos dois sentidos
+bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade) {
+    if (id1 == id2) {
+        return false;
+    }
+
+    Vertice *v1 = buscarVertice(inventario, id1);
+    Vertice *v2 = buscarVertice(inventario, id2);
+
+    if (v1 == nullptr || v2 == nullptr) {
+        return false;
+    }
+
+    adicionarAresta(*v1, id2, similaridade);
+    adicionarAresta(*v2, id1, similaridade);
+    return true;
+}
+
+static void imprimirAresta(const Vertice &v, const Vertice &w, int similaridade) {
+    cout << v.item.nome_item << " (" << v.item.id << ") -- " << w.item.nome_item << " (" << w.item.id << ") | S = " << similaridade << endl;
+}
+
+// BFS seguindo o código da aula, usando list como fila
+static void buscaEmLargura(const Grafo &inventario, int s, list<int> &marcados) {
+    list<int> fila;
+    list<int> emFila;
+
+    marcados.push_back(s);
+    fila.push_back(s);
+    emFila.push_back(s);
+
+    while (!fila.empty()) {
+        int v = fila.front();
+        const Vertice *vertice_v = buscarVertice(inventario, v);
+
+        for (const Aresta &aresta : vertice_v->adjacentes) {
+            int w = aresta.destino;
+            const Vertice *vertice_w = buscarVertice(inventario, w);
+
+            if (!contem(marcados, w)) {
+                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
+                marcados.push_back(w);
+                fila.push_back(w);
+                emFila.push_back(w);
+            }
+            else if (contem(emFila, w)) {
+                imprimirAresta(*vertice_v, *vertice_w, aresta.similaridade);
+            }
+        }
+
+        fila.pop_front();
+        emFila.remove(v);
+    }
+}
+
+// Percorre todos os componentes do grafo com BFS
+void exibirSimilaridadesBFS(const Grafo &inventario) {
+    list<int> marcados;
+
+    for (const Vertice &vertice : inventario.vertices) {
+        if (!contem(marcados, vertice.item.id)) {
+            buscaEmLargura(inventario, vertice.item.id, marcados);
+        }
+    }
+}
+
+void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jogador, int similaridade) {
+    const Vertice *origem = buscarVertice(inventario, codigo);
+
+    if (origem == nullptr) {
+        cout << "Item não encontrado." << endl;
+        return;
+    }
+
+    bool encontrou = false;
+
+    for (const Aresta &aresta : origem->adjacentes) {
+        const Item &item = buscarVertice(inventario, aresta.destino)->item;
+        if (aresta.similaridade > similaridade && item.nome_dono != jogador) {
+            cout << "Item: " << item.nome_item << endl;
+            cout << "Dono: " << item.nome_dono << endl;
+            cout << "ID: " << item.id << endl;
+            cout << "Similaridade: " << aresta.similaridade << endl;
+            cout << endl;
+            encontrou = true;
+        }
+    }
+    if (!encontrou) {
+        cout << "Nenhum item encontrado." << endl;
+    }
+}
+
+void removerVertice(Grafo &inventario, int id) {
+    for (Vertice &vertice : inventario.vertices) {
+        auto itAresta = vertice.adjacentes.begin();
+        while (itAresta != vertice.adjacentes.end()) {
+            if (itAresta->destino == id) {
+                itAresta = vertice.adjacentes.erase(itAresta);
+            }
+            else {
+                itAresta++;
+            }
+        }
+    }
+
+    auto itVertice = inventario.vertices.begin();
+    while (itVertice != inventario.vertices.end()) {
+        if (itVertice->item.id == id) {
+            itVertice = inventario.vertices.erase(itVertice);
+        }
+        else {
+            itVertice++;
+        }
+    }
+}
+
+// Funções de Árvore Binária de Busca (ordenada por nome_item)
+
+void inserirArvore(NoArvore* &p, Item novo_item) {
+    if (p == nullptr) {
+        p = new NoArvore;
+        p->item = novo_item;
+        p->esquerda = nullptr;
+        p->direita = nullptr;
+    }
+    else if (novo_item.nome_item < p->item.nome_item) {
+        inserirArvore(p->esquerda, novo_item);
+    }
+    else {
+        inserirArvore(p->direita, novo_item);
+    }
+}
+
+bool existeItemPorNome(NoArvore* p, const string &nome) {
+    if (p == nullptr) {
+        return false;
+    }
+    if (nome == p->item.nome_item) {
+        return true;
+    }
+    if (nome < p->item.nome_item) {
+        return existeItemPorNome(p->esquerda, nome);
+    }
+    return existeItemPorNome(p->direita, nome);
+}
+
+void exibirEmOrdem(NoArvore* p) {
+    if (p != nullptr) {
+        exibirEmOrdem(p->esquerda);
+        exibirItem(p->item);
+        exibirEmOrdem(p->direita);
+    }
+}
+
+int contarPropriedade(NoArvore* p, const string &propriedade) {
+    if (p == nullptr) {
         return 0;
     }
 
     int quantidade = 0;
 
-    if(p->item.propriedade_magica == propriedade){
+    if (p->item.propriedade_magica == propriedade) {
         quantidade = 1;
     }
 
-    return quantidade + contarPropriedade(p->left, propriedade) + contarPropriedade(p->right, propriedade);
+    return quantidade + contarPropriedade(p->esquerda, propriedade) + contarPropriedade(p->direita, propriedade);
 }
 
-static treenode* tFindLessSaveRight(treenode* &p){
-    if(p->left != nullptr){
-        return tFindLessSaveRight(p->left);
+static NoArvore* buscarMenor(NoArvore* &p) {
+    if (p->esquerda != nullptr) {
+        return buscarMenor(p->esquerda);
     }
 
-    treenode* copia = p;
-    p = p->right;
+    NoArvore* copia = p;
+    p = p->direita;
     return copia;
 }
 
-bool tRemove(treenode* &p, const string &nome, int id){
-    if(p == nullptr){
+bool removerArvore(NoArvore* &p, const string &nome, int id) {
+    if (p == nullptr) {
         return false;
     }
 
-    if(nome == p->item.nome_item && id == p->item.id){
-        treenode* temp = p;
+    if (nome == p->item.nome_item && id == p->item.id) {
+        NoArvore* temp = p;
 
-        if(p->right == nullptr){
-            p = p->left;
+        if (p->direita == nullptr) {
+            p = p->esquerda;
         }
-        else if(p->left == nullptr){
-            p = p->right;
+        else if (p->esquerda == nullptr) {
+            p = p->direita;
         }
         else {
-            temp = tFindLessSaveRight(p->right);
+            temp = buscarMenor(p->direita);
             p->item = temp->item;
         }
 
@@ -318,39 +334,36 @@ bool tRemove(treenode* &p, const string &nome, int id){
         return true;
     }
 
-    if(nome < p->item.nome_item){
-        return tRemove(p->left, nome, id);
+    if (nome < p->item.nome_item) {
+        return removerArvore(p->esquerda, nome, id);
     }
 
-    return tRemove(p->right, nome, id);
+    return removerArvore(p->direita, nome, id);
 }
 
-void removerVertice(Grafo &inventario, int id){
-    for(Vertice &vertice : inventario.vertices){
-        vertice.adjacentes.remove_if([id](const Aresta &aresta){
-            return aresta.destino == id;
-        });
-    }
-
-    inventario.vertices.remove_if([id](const Vertice &vertice){
-        return vertice.item.id == id;
-    });
-}
-
-int removerMenosRaros(Grafo &inventario, treenode* &arvore, int r){
+int removerMenosRaros(Grafo &inventario, NoArvore* &arvore, int r) {
     list<Item> remover;
 
-    for(const Vertice &vertice : inventario.vertices){
-        if(vertice.item.valor_raridade < r){
+    for (const Vertice &vertice : inventario.vertices) {
+        if (vertice.item.valor_raridade < r) {
             remover.push_back(vertice.item);
         }
     }
 
-    for(const Item &item : remover){
-        tRemove(arvore, item.nome_item, item.id);
+    for (const Item &item : remover) {
+        removerArvore(arvore, item.nome_item, item.id);
         removerVertice(inventario, item.id);
         cout << "Removido: " << item.nome_item << " (ID " << item.id << ")" << endl;
     }
 
     return remover.size();
+}
+
+void destruirArvore(NoArvore* &p) {
+    if (p != nullptr) {
+        destruirArvore(p->esquerda);
+        destruirArvore(p->direita);
+        delete p;
+        p = nullptr;
+    }
 }
