@@ -4,8 +4,163 @@
 #include <string>
 #include <iostream>
 #include <list>
+#include <stack>
+#include <algorithm>
+#include <cstdlib>
 
 using namespace std;
+
+Ponto p0;
+
+void trocar(Ponto &a, Ponto &b) {
+    Ponto aux = a;
+    a = b;
+    b = aux;
+}
+
+float area_triangulo(Ponto a, Ponto b, Ponto c) {
+    return (
+        a.x * b.y - a.y * b.x +
+        a.y * c.x - a.x * c.y +
+        b.x * c.y - b.y * c.x
+    ) / 2.0;
+}
+
+int lado(Ponto a, Ponto b, Ponto p) {
+    float s = area_triangulo(a, b, p);
+    if (s > 0) {
+        return 1;
+    } else if (s < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int orientacao(Ponto p1, Ponto p2, Ponto p3) {
+    float aux = area_triangulo(p1, p2, p3);
+    if (aux == 0)
+        return 0;
+    else if (aux < 0)
+        return 1;
+    else
+        return 2;
+}
+
+float distancia_quadrada(Ponto p1, Ponto p2) {
+    return (p1.y - p2.y) * (p1.y - p2.y) + (p1.x - p2.x) * (p1.x - p2.x);
+}
+
+int compare(const void *vp1, const void *vp2) {
+    Ponto *p1 = (Ponto *)vp1;
+    Ponto *p2 = (Ponto *)vp2;
+
+    int o = orientacao(p0, *p1, *p2);
+    if (o == 0)
+        return (
+            distancia_quadrada(p0, *p2) >= distancia_quadrada(p0, *p1)
+        ) ? -1 : 1;
+
+    return (o == 2) ? -1 : 1;
+}
+
+Ponto anterior_top(stack<Ponto> &S) {
+    Ponto p = S.top();
+    S.pop();
+    Ponto res = S.top();
+    S.push(p);
+    return res;
+}
+
+int grahan_scan(Ponto pontos[], int n, Ponto poligono[]) {
+    int menor_y = 9999, menor_i = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (pontos[i].y < menor_y) {
+            menor_y = pontos[i].y;
+            menor_i = i;
+        } else if (pontos[i].y == menor_y) {
+            if (pontos[i].x < pontos[menor_i].x) {
+                menor_i = i;
+            }
+        }
+    }
+    trocar(pontos[0], pontos[menor_i]);
+    p0 = pontos[0];
+
+    qsort(&pontos[1], n - 1, sizeof(Ponto), compare);
+
+    int m = 1;
+    for (int i = 1; i < n; i++) {
+        while (i < n - 1 && orientacao(p0, pontos[i], pontos[i + 1]) == 0)
+            i++;
+        pontos[m] = pontos[i];
+        m++;
+    }
+
+    if (m < 3)
+        return 0;
+
+    stack<Ponto> fecho;
+    fecho.push(pontos[0]);
+    fecho.push(pontos[1]);
+    fecho.push(pontos[2]);
+
+    for (int i = 3; i < m; i++) {
+        while (fecho.size() > 1 &&
+            orientacao(anterior_top(fecho), fecho.top(), pontos[i]) != 2
+        ) {
+            fecho.pop();
+        }
+        fecho.push(pontos[i]);
+    }
+
+    int qtd_fecho = 0;
+    cout << "Pontos do polígono convexo (contorno do item):" << endl;
+    while (!fecho.empty()) {
+        Ponto p = fecho.top();
+        cout << "(" << p.x << ", " << p.y << ")" << endl;
+        poligono[qtd_fecho] = p;
+        qtd_fecho++;
+        fecho.pop();
+    }
+
+    return qtd_fecho;
+}
+
+float calcular_area_poligono(Ponto poligono[], int m) {
+    float area_total = 0;
+    for (int i = 1; i < m - 1; i++) {
+        float s = area_triangulo(poligono[0], poligono[i], poligono[i + 1]);
+        if (s < 0) {
+            s = -s;
+        }
+        area_total += s;
+    }
+    return area_total;
+}
+
+bool verificar_item_cabe_bolsa(Ponto pontos[], int n, float &area_calculada) {
+    if (n < 3) {
+        return false;
+    }
+
+    Ponto poligono[100];
+    int m = grahan_scan(pontos, n, poligono);
+
+    if (m < 3) {
+        return false;
+    }
+
+    area_calculada = calcular_area_poligono(poligono, m);
+    cout << "Área do item: " << area_calculada << " (Limite da abertura da bolsa: " << AREA_ABERTURA_BOLSA << ")" << endl;
+
+    if (area_calculada <= AREA_ABERTURA_BOLSA) {
+        return true;
+    }
+
+    return false;
+}
 
 Raridade classificarRaridade(int valor) {
     if (valor >= 100) {
@@ -52,6 +207,7 @@ void exibirItem(const Item &item) {
     cout << AMARELO << "│ " << RESET << "Propriedade mágica: " << item.propriedade_magica << endl;
     cout << AMARELO << "│ " << RESET << "ID: " << item.id << endl;
     cout << AMARELO << "│ " << RESET << "Raridade: " << item.valor_raridade << " (" << corRaridade(item.raridade) << nomeRaridade(item.raridade) << RESET << ")" << endl;
+    cout << AMARELO << "│ " << RESET << "Área do contorno: " << item.area_contorno << endl;
     cout << AMARELO << "└────────────────────────────────" << RESET << endl;
 }
 

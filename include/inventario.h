@@ -3,6 +3,14 @@
 
 #include <string>
 #include <list>
+#include <stack>
+
+// Área máxima da abertura da Bolsa Devoradora
+const float AREA_ABERTURA_BOLSA = 100.0;
+
+struct Ponto {
+    int x, y;
+};
 
 enum Raridade {
     Comum,
@@ -19,6 +27,7 @@ struct Item {
     int id;
     int valor_raridade;
     Raridade raridade;
+    float area_contorno;
 };
 
 struct Aresta {
@@ -64,5 +73,15 @@ int contarPropriedade(NoArvore* p, const std::string &propriedade);
 bool removerArvore(NoArvore* &p, const std::string &nome, int id);
 int removerMenosRaros(Grafo &inventario, NoArvore* &arvore, int r);
 void destruirArvore(NoArvore* &p);
+
+// Funções de algoritmos geométricos
+float area_triangulo(Ponto a, Ponto b, Ponto c);
+int lado(Ponto a, Ponto b, Ponto p);
+int orientacao(Ponto p1, Ponto p2, Ponto p3);
+float distancia_quadrada(Ponto p1, Ponto p2);
+Ponto anterior_top(std::stack<Ponto> &S);
+int grahan_scan(Ponto pontos[], int n, Ponto poligono[]);
+float calcular_area_poligono(Ponto poligono[], int m);
+bool verificar_item_cabe_bolsa(Ponto pontos[], int n, float &area_calculada);
 
 #endif

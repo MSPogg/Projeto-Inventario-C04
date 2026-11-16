@@ -58,6 +58,30 @@ int main() {
             novo_item.valor_raridade = valor;
             novo_item.raridade = classificarRaridade(valor);
 
+            int n;
+            do {
+                n = lerInteiro("Quantidade de pontos do contorno do item (3 a 100): ");
+                if (n < 3 || n > 100) {
+                    cout << "Digite uma quantidade entre 3 e 100 pontos." << endl;
+                }
+            } while (n < 3 || n > 100);
+
+            Ponto pontos[100];
+            for (int i = 0; i < n; i++) {
+                cout << "Ponto " << i + 1 << " (x y): ";
+                cin >> pontos[i].x >> pontos[i].y;
+            }
+            cin.ignore(10000, '\n');
+
+            float area_item = 0;
+            if (!verificar_item_cabe_bolsa(pontos, n, area_item)) {
+                cout << "O item não cabe na abertura da bolsa (ou os pontos não formam um polígono convexo)!" << endl;
+                esperar();
+                break;
+            }
+
+            novo_item.area_contorno = area_item;
+
             if (!inserirVertice(inventario, novo_item)) {
                 cout << "Já existe um item com o ID " << novo_item.id << "." << endl;
                 esperar();
@@ -65,6 +89,8 @@ int main() {
             }
 
             inserirArvore(arvore_inventario, novo_item);
+            cout << "Item cabe na abertura da bolsa e foi adicionado com sucesso!" << endl;
+            esperar();
 
             break;
         }
