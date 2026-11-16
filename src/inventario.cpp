@@ -202,13 +202,14 @@ string corRaridade(Raridade raridade) {
 }
 
 void exibirItem(const Item &item) {
-    cout << AMARELO << "┌─ " << RESET << NEGRITO << item.nome_item << RESET << endl;
-    cout << AMARELO << "│ " << RESET << "Dono: " << item.nome_dono << endl;
-    cout << AMARELO << "│ " << RESET << "Propriedade mágica: " << item.propriedade_magica << endl;
-    cout << AMARELO << "│ " << RESET << "ID: " << item.id << endl;
-    cout << AMARELO << "│ " << RESET << "Raridade: " << item.valor_raridade << " (" << corRaridade(item.raridade) << nomeRaridade(item.raridade) << RESET << ")" << endl;
-    cout << AMARELO << "│ " << RESET << "Área do contorno: " << item.area_contorno << endl;
-    cout << AMARELO << "└────────────────────────────────" << RESET << endl;
+    string cor = corRaridade(item.raridade);
+    cout << cor << "┌─ " << NEGRITO << item.nome_item << RESET << endl;
+    cout << cor << "│ " << RESET << "Dono: " << item.nome_dono << endl;
+    cout << cor << "│ " << RESET << "Propriedade mágica: " << item.propriedade_magica << endl;
+    cout << cor << "│ " << RESET << "ID: " << item.id << endl;
+    cout << cor << "│ " << RESET << "Raridade: " << cor << item.valor_raridade << " (" << nomeRaridade(item.raridade) << ")" << RESET << endl;
+    cout << cor << "│ " << RESET << "Área do contorno: " << item.area_contorno << endl;
+    cout << cor << "└────────────────────────────────" << RESET << endl;
 }
 
 int lerInteiro(const string &mensagem) {
@@ -308,7 +309,8 @@ bool inserirSimilaridade(Grafo &inventario, int id1, int id2, int similaridade) 
 }
 
 static void imprimirAresta(const Vertice &v, const Vertice &w, int similaridade) {
-    cout << v.item.nome_item << " (" << v.item.id << ") -- " << w.item.nome_item << " (" << w.item.id << ") | S = " << similaridade << endl;
+    cout << corRaridade(v.item.raridade) << v.item.nome_item << RESET << " (" << v.item.id << ") -- "
+         << corRaridade(w.item.raridade) << w.item.nome_item << RESET << " (" << w.item.id << ") | S = " << similaridade << endl;
 }
 
 // BFS seguindo o código da aula, usando list como fila
@@ -368,11 +370,13 @@ void buscarItensSimilares(const Grafo &inventario, int codigo, const string &jog
     for (const Aresta &aresta : origem->adjacentes) {
         const Item &item = buscarVertice(inventario, aresta.destino)->item;
         if (aresta.similaridade > similaridade && item.nome_dono != jogador) {
-            cout << "Item: " << item.nome_item << endl;
-            cout << "Dono: " << item.nome_dono << endl;
-            cout << "ID: " << item.id << endl;
-            cout << "Similaridade: " << aresta.similaridade << endl;
-            cout << endl;
+            string cor = corRaridade(item.raridade);
+            cout << cor << "┌─ " << NEGRITO << item.nome_item << RESET << endl;
+            cout << cor << "│ " << RESET << "Dono: " << item.nome_dono << endl;
+            cout << cor << "│ " << RESET << "ID: " << item.id << endl;
+            cout << cor << "│ " << RESET << "Raridade: " << cor << item.valor_raridade << " (" << nomeRaridade(item.raridade) << ")" << RESET << endl;
+            cout << cor << "│ " << RESET << "Similaridade: " << aresta.similaridade << endl;
+            cout << cor << "└────────────────────────────────" << RESET << endl;
             encontrou = true;
         }
     }
